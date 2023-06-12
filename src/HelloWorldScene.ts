@@ -23,7 +23,27 @@ export default class HelloWorldScene extends Phaser.Scene {
     const x = 5
     const y = 2
     const mySprite = this.add.sprite(x, y, 'mySpriteSheet')
-    this.scale.setGameSize(window.innerWidth, window.innerHeight)
+    //sizing
+    const targetAspectRatio = 30 / 16
+    const windowAspectRatio = window.innerWidth / window.innerHeight
+
+    let gameWidth = window.innerWidth
+    let gameHeight = window.innerHeight
+
+    if (windowAspectRatio > targetAspectRatio) {
+      gameWidth = gameHeight * targetAspectRatio
+    } else {
+      gameHeight = gameWidth / targetAspectRatio
+    }
+
+    this.scale.setGameSize(gameWidth, gameHeight)
+
+    const canvas = this.sys.game.canvas
+    canvas.style.position = 'absolute'
+    canvas.style.left = '50%'
+    canvas.style.top = '50%'
+    canvas.style.transform = 'translate(-50%, -50%)'
+
     const farmBackground = this.add.image(0, 0, 'farm')
     farmBackground.setOrigin(0, 0)
 
@@ -61,7 +81,9 @@ export default class HelloWorldScene extends Phaser.Scene {
     cafeBackground.setScale(CafeScaleX, CafeScaleY)
 
     this.logo = this.physics.add.image(800, 900, 'logo')
-
+    const logoScaleX = (gameWidth / this.logo.width) * 0.2
+    const logoScaleY = (gameHeight / this.logo.height) * 0.4
+    this.logo.setScale(logoScaleX, logoScaleY)
     this.logo.setVelocity(50, 200)
     this.logo.setBounce(1, 1)
     this.logo.setCollideWorldBounds(true)
@@ -86,17 +108,17 @@ export default class HelloWorldScene extends Phaser.Scene {
   }
   update() {
     if (this.cursors.left.isDown) {
-      this.logo.setVelocityX(-160)
+      this.logo.setVelocityX(-300)
     } else if (this.cursors.right.isDown) {
-      this.logo.setVelocityX(160)
+      this.logo.setVelocityX(300)
     } else {
       this.logo.setVelocityX(0)
     }
 
     if (this.cursors.up.isDown) {
-      this.logo.setVelocityY(-160)
+      this.logo.setVelocityY(-300)
     } else if (this.cursors.down.isDown) {
-      this.logo.setVelocityY(160)
+      this.logo.setVelocityY(300)
     } else {
       this.logo.setVelocityY(0)
     }
