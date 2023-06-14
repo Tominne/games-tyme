@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import Phaser, { Cameras } from 'phaser'
 
 export default class HelloWorldScene extends Phaser.Scene {
   private platforms?: Phaser.Physics.Arcade.StaticGroup
@@ -11,8 +11,11 @@ export default class HelloWorldScene extends Phaser.Scene {
 
   preload() {
     this.load.image('farm', 'images/farm.png')
-    this.load.image('livingRoom', 'images/livingroom.jpg')
-    this.load.image('Cafe', 'images/cafe.gif')
+    this.load.image('cafeGif', 'images/cafe.gif')
+    this.load.image('living room', 'images/livingroom.png')
+    this.load.image('cafe1', 'images/devcafe/cafe1.png')
+    this.load.image('cafe2', 'images/devcafe/cafe2.png')
+    this.load.image('cafe3', 'images/devcafe/cafe3.png')
     this.load.image('logo', 'images/nappyman.png')
     this.load.image('frame1', 'images/dog/run1.png')
     this.load.image('frame2', 'images/dog/run1-5.png')
@@ -44,11 +47,27 @@ export default class HelloWorldScene extends Phaser.Scene {
     const farmBackground = this.add.image(0, 0, 'farm')
     farmBackground.setOrigin(0, 0)
 
-    const livingRoomBackground = this.add.image(0, 0, 'livingRoom')
+    const livingRoomBackground = this.add.image(0, 0, 'living room')
     livingRoomBackground.setOrigin(0, 0)
 
-    const cafeBackground = this.add.image(0, 0, 'Cafe')
+    const cafeBackground = this.add.image(0, 0, 'cafeGif')
     cafeBackground.setOrigin(0, 0)
+    cafeBackground.setVisible(true)
+    this.anims.create({
+      key: 'cafeAnimation',
+      frames: [{ key: 'cafe1' }, { key: 'cafe2' }, { key: 'cafe3' }],
+      frameRate: 0.2,
+      repeat: -1,
+    })
+
+    const cafe = this.add.sprite(0, 0, 'cafe1')
+    cafe.play('cafeAnimation')
+    cafe.setPosition(this.scale.width / 2, cafe.width / 2)
+    const [cafeScaleX, cafeScaleY] = getScaleValues(cafe, this.cameras.main)
+    cafe.setDepth(0)
+    cafe.setVisible(false)
+    cafe.setScale(cafeScaleX, cafeScaleY + 0.2)
+    this.logo.setDepth(1)
 
     function getScaleValues(
       backgroundImage: Phaser.GameObjects.Image,
@@ -98,7 +117,6 @@ export default class HelloWorldScene extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     })
-
     // Play animation on a sprite
     const mySprite = this.add.sprite(0, 0, 'frame1')
     mySprite.setPosition(gameWidth / 2, gameHeight / 2)
@@ -117,7 +135,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     mySprite.y += 20
     //left
     mySprite.x -= 50
-    mySprite.setVisible(false)
+    mySprite.setVisible(true)
     const dialogueText = this.add.text(0, 0, '')
     //activating talk
     this.input.keyboard.on('keydown-C', () => {
@@ -142,16 +160,25 @@ export default class HelloWorldScene extends Phaser.Scene {
         livingRoomBackground.setVisible(true)
         cafeBackground.setVisible(false)
         mySprite.setVisible(false)
+        cafe.setVisible(false)
       } else if (livingRoomBackground.visible) {
         farmBackground.setVisible(false)
         livingRoomBackground.setVisible(false)
         cafeBackground.setVisible(true)
         mySprite.setVisible(true)
+        cafe.setVisible(false)
+      } else if (cafeBackground.visible) {
+        farmBackground.setVisible(false)
+        livingRoomBackground.setVisible(false)
+        cafeBackground.setVisible(false)
+        mySprite.setVisible(false)
+        cafe.setVisible(true)
       } else {
         farmBackground.setVisible(true)
         livingRoomBackground.setVisible(false)
         cafeBackground.setVisible(false)
         mySprite.setVisible(false)
+        cafe.setVisible(false)
       }
     })
   }
