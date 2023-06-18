@@ -1,22 +1,32 @@
-import Phaser, { Cameras } from 'phaser'
+import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
+import { useQuery } from 'react-query'
+import { getWeather } from './api'
 
 export default class HelloWorldScene extends Phaser.Scene {
   private platforms?: Phaser.Physics.Arcade.StaticGroup
   private logo!: Phaser.Physics.Arcade.Image
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private cat?: Phaser.Physics.Arcade.Sprite
+  keys!: any
+
   constructor() {
-    super('hello-world')
+    super({ key: 'helloWoldScene' })
   }
 
   preload() {
+    getWeather()
     this.load.image('farm', 'images/farm.png')
     this.load.image('cafeGif', 'images/cafe.gif')
-    this.load.image('living room', 'images/livingroom.png')
+    this.load.image('living room', 'images/livingroom.jpg')
     this.load.image('cafe1', 'images/devcafe/cafe1.png')
     this.load.image('cafe2', 'images/devcafe/cafe2.png')
     this.load.image('cafe3', 'images/devcafe/cafe3.png')
-    this.load.image('logo', 'images/nappyman.png')
+    this.load.image('jim1', 'images/jitter/jim1.png')
+    this.load.image('jitter2', 'images/jitter/jitter2.png')
+    this.load.image('jitter3', 'images/jitter/jitter3.png')
+    this.load.image('jitter4', 'images/jitter/jitter4.png')
+    this.load.image('jitter5', 'images/jitter/jitter5.png')
+    this.load.image('jitter6', 'images/jitter/jitter6.png')
     this.load.image('frame1', 'images/dog/run1.png')
     this.load.image('frame2', 'images/dog/run1-5.png')
     this.load.image('frame3', 'images/dog/run2.png')
@@ -53,10 +63,25 @@ export default class HelloWorldScene extends Phaser.Scene {
     const cafeBackground = this.add.image(0, 0, 'cafeGif')
     cafeBackground.setOrigin(0, 0)
     cafeBackground.setVisible(true)
+
     this.anims.create({
       key: 'cafeAnimation',
       frames: [{ key: 'cafe1' }, { key: 'cafe2' }, { key: 'cafe3' }],
       frameRate: 0.2,
+      repeat: -1,
+    })
+
+    this.anims.create({
+      key: 'jitterAnimation',
+      frames: [
+        { key: 'jim1' },
+        { key: 'jitter2' },
+        { key: 'jitter3' },
+        { key: 'jitter4' },
+        { key: 'jitter5' },
+        { key: 'jitter6' },
+      ],
+      frameRate: 2,
       repeat: -1,
     })
 
@@ -67,7 +92,13 @@ export default class HelloWorldScene extends Phaser.Scene {
     cafe.setDepth(0)
     cafe.setVisible(false)
     cafe.setScale(cafeScaleX, cafeScaleY + 0.2)
-    this.logo.setDepth(1)
+
+    const logo = this.add.sprite(0, 0, 'jim1')
+    logo.play('jitterAnimation')
+    logo.setPosition(this.scale.width / 2, logo.width / 2)
+    logo.setDepth(1)
+    logo.setVisible(true)
+    logo.setName('Player')
 
     function getScaleValues(
       backgroundImage: Phaser.GameObjects.Image,
@@ -102,14 +133,6 @@ export default class HelloWorldScene extends Phaser.Scene {
       'How are you today????',
       'Nice to see you I guess...',
     ]
-    this.logo = this.physics.add.image(800, 900, 'logo')
-    const logoScaleX = (gameWidth / this.logo.width) * 0.2
-    const logoScaleY = (gameHeight / this.logo.height) * 0.4
-    this.logo.setScale(logoScaleX, logoScaleY)
-    this.logo.setVelocity(50, 200)
-    this.logo.setBounce(1, 1)
-    this.logo.setCollideWorldBounds(true)
-    this.logo.setName('Player')
 
     this.anims.create({
       key: 'myAnimation',
@@ -142,8 +165,8 @@ export default class HelloWorldScene extends Phaser.Scene {
       const distance = Phaser.Math.Distance.Between(
         mySprite.x,
         mySprite.y,
-        this.logo.x,
-        this.logo.y
+        logo.x,
+        logo.y
       )
       if (distance < 100) {
         const randomIndex = Math.floor(Math.random() * dialogues.length)
@@ -154,6 +177,7 @@ export default class HelloWorldScene extends Phaser.Scene {
     })
 
     this.cursors = this.input.keyboard.createCursorKeys()
+
     this.input.keyboard.on('keydown-D', () => {
       if (farmBackground.visible) {
         farmBackground.setVisible(false)
@@ -181,19 +205,27 @@ export default class HelloWorldScene extends Phaser.Scene {
         cafe.setVisible(false)
       }
     })
+
+    this.keys = this.input.keyboard.addKeys({
+      A: Phaser.Input.Keyboard.KeyCodes.A,
+      D: Phaser.Input.Keyboard.KeyCodes.D,
+      W: Phaser.Input.Keyboard.KeyCodes.W,
+      S: Phaser.Input.Keyboard.KeyCodes.S,
+    })
   }
+
   update() {
-    if (this.cursors.left.isDown) {
+    if (this.keys.A.isDown) {
       this.logo.setVelocityX(-300)
-    } else if (this.cursors.right.isDown) {
+    } else if (this.keys.D.isDown) {
       this.logo.setVelocityX(300)
     } else {
       this.logo.setVelocityX(0)
     }
 
-    if (this.cursors.up.isDown) {
+    if (this.keys.W.isDown) {
       this.logo.setVelocityY(-300)
-    } else if (this.cursors.down.isDown) {
+    } else if (this.keys.S.isDown) {
       this.logo.setVelocityY(300)
     } else {
       this.logo.setVelocityY(0)
