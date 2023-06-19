@@ -8,12 +8,11 @@ const config = {
   type: Phaser.AUTO,
   width: 1000,
   height: 800,
-  zoom: 2,
   pixelArt: true,
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { x: 200, y: 200 },
+      gravity: { y: 200 },
     },
   },
   scene: [libraryScene, cafeScene],

@@ -8,7 +8,6 @@ export default class libraryScene extends Phaser.Scene {
   private logo!: Phaser.Physics.Arcade.Sprite
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private cat?: Phaser.Physics.Arcade.Sprite
-  jitterSprite!: Phaser.Physics.Arcade.Sprite
 
   keys!: any
   video!: any
@@ -64,7 +63,10 @@ export default class libraryScene extends Phaser.Scene {
     this.scale.setGameSize(gameWidth, gameHeight)
 
     //jitter sprite
-    const jitterSprite = this.add.sprite(0, 0, 'jitter1')
+    this.jitterSprite = this.physics.add.sprite(0, 0, 'jitter1')
+    this.jitterSprite.setVelocity(0)
+    this.jitterSprite.setBounce(0, 0)
+    this.jitterSprite.setCollideWorldBounds(true)
     this.anims.create({
       key: 'jitterAnimation',
       frames: [
@@ -78,18 +80,19 @@ export default class libraryScene extends Phaser.Scene {
       frameRate: 2,
       repeat: -1,
     })
-    jitterSprite.play('jitterAnimation')
-    jitterSprite.setPosition(this.scale.width / 2, jitterSprite.width / 2)
-    jitterSprite.setDepth(5)
-    jitterSprite.setVisible(true)
-    jitterSprite.setName('Player')
+    this.jitterSprite.play('jitterAnimation')
+    this.jitterSprite.setPosition(gameWidth / 2, gameHeight / 2)
+    this.jitterSprite.setDepth(5)
+    this.jitterSprite.setVisible(true)
+    this.jitterSprite.setName('Player')
+    this.jitterSprite.setInteractive()
     const initialScale = 2 / 8
-    jitterSprite.setScale(initialScale, initialScale)
+    this.jitterSprite.setScale(initialScale, initialScale)
 
     // Set the position of the jitter sprite
     const x = this.scale.width / 2
-    const y = this.scale.height - jitterSprite.displayHeight / 2
-    jitterSprite.setPosition(x, y)
+    const y = this.scale.height - this.jitterSprite.displayHeight / 2
+    this.jitterSprite.setPosition(x, y)
 
     this.cursors = this.input.keyboard.createCursorKeys()
 
@@ -98,18 +101,22 @@ export default class libraryScene extends Phaser.Scene {
     this.video = this.add.video(gameWidth / 2, gameHeight / 2, 'library')
     this.video.displayHeight = gameHeight
     this.video.displayWidth = gameWidth
+    this.video.play()
   }
-
   update() {
     if (this.cursors.left.isDown) {
       this.jitterSprite.setVelocityX(-300)
     } else if (this.cursors.right.isDown) {
       this.jitterSprite.setVelocityX(300)
-    } else if (this.cursors.up.isDown) {
+    } else {
+      this.jitterSprite.setVelocityX(0)
+    }
+    if (this.cursors.up.isDown) {
       this.jitterSprite.setVelocityY(-300)
     } else if (this.cursors.down.isDown) {
       this.jitterSprite.setVelocityY(300)
+    } else {
+      this.jitterSprite.setVelocityY(0)
     }
-    this.video.play()
   }
 }

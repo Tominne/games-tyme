@@ -69,12 +69,13 @@ export default class cafeScene extends jitter {
     } else {
       gameHeight = gameWidth / targetAspectRatio
     }
-    const maxWidth = 1600
+    const maxWidth = 1000
     if (gameWidth > maxWidth) {
       gameWidth = maxWidth
       gameHeight = gameWidth / targetAspectRatio
     }
     this.scale.setGameSize(gameWidth, gameHeight)
+    this.physics.world.setBounds(0, 0, gameWidth, gameHeight)
 
     //other backgrounds
     const farmBackground = this.add.image(0, 0, 'farm')
@@ -109,7 +110,6 @@ export default class cafeScene extends jitter {
       return [scaleX, scaleY]
     }
 
-    this.physics.world.setBounds(0, 0, this.scale.width, this.scale.height)
     const [farmScaleX, farmScaleY] = getScaleValues(
       farmBackground,
       this.cameras.main
@@ -127,7 +127,7 @@ export default class cafeScene extends jitter {
     jitterSprite.setDepth(1)
     jitterSprite.setVisible(true)
     jitterSprite.setName('Player')
-    const initialScale = 2 / 8
+    const initialScale = 1 / 8
     jitterSprite.setScale(initialScale, initialScale)
 
     // Set the position of the jitter sprite
@@ -136,12 +136,12 @@ export default class cafeScene extends jitter {
     jitterSprite.setPosition(x, y)
     this.scale.on('resize', (gameSize) => {
       // Update the scale of the jitter sprite based on the new game size
-      const newScale = (initialScale * gameSize.height) / this.scale.height
+      const newScale = (initialScale * gameHeight) / this.scale.height
       jitterSprite.setScale(newScale, newScale)
 
       // Update the position of the jitter sprite
-      const x = gameSize.width / 2
-      const y = gameSize.height - jitterSprite.displayHeight / 2
+      const x = gameWidth / 2
+      const y = gameHeight - jitterSprite.displayHeight / 2
       jitterSprite.setPosition(x, y)
     })
     //player
