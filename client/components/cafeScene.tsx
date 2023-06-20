@@ -33,27 +33,8 @@ export default class cafeScene extends jitter {
   }
 
   create() {
-    this.anims.create({
-      key: 'jitterAnimation',
-      frames: [
-        { key: 'jitter1' },
-        { key: 'jitter2' },
-        { key: 'jitter3' },
-        { key: 'jitter4' },
-        { key: 'jitter5' },
-        { key: 'jitter6' },
-      ],
-      frameRate: 2,
-      repeat: -1,
-    })
-
-    //jitter sprite
-    const jitterSprite = this.add.sprite(0, 0, 'jitter1')
-    jitterSprite.play('jitterAnimation')
-    //sizing
     const targetAspectRatio = 30 / 16
     const windowAspectRatio = window.innerWidth / window.innerHeight
-
     //add video to canvas
     const canvas = this.sys.game.canvas
     canvas.style.position = 'absolute'
@@ -76,6 +57,38 @@ export default class cafeScene extends jitter {
     }
     this.scale.setGameSize(gameWidth, gameHeight)
     this.physics.world.setBounds(0, 0, gameWidth, gameHeight)
+
+    //jitter sprite
+    this.jitterSprite = this.physics.add.sprite(0, 0, 'jitter1')
+    this.jitterSprite.setVelocity(0)
+    this.jitterSprite.setBounce(0, 0)
+    this.jitterSprite.setCollideWorldBounds(true)
+    this.anims.create({
+      key: 'jitterAnimation',
+      frames: [
+        { key: 'jitter1' },
+        { key: 'jitter2' },
+        { key: 'jitter3' },
+        { key: 'jitter4' },
+        { key: 'jitter5' },
+        { key: 'jitter6' },
+      ],
+      frameRate: 2,
+      repeat: -1,
+    })
+    this.jitterSprite.play('jitterAnimation')
+    this.jitterSprite.setPosition(gameWidth / 2, gameHeight / 2)
+    this.jitterSprite.setDepth(5)
+    this.jitterSprite.setVisible(true)
+    this.jitterSprite.setName('jitterSprite')
+    this.jitterSprite.setInteractive()
+    const initialScale = 2 / 8
+    this.jitterSprite.setScale(initialScale, initialScale)
+
+    // Set the position of the jitter sprite
+    const x = this.scale.width / 2
+    const y = this.scale.height - this.jitterSprite.displayHeight / 2
+    this.jitterSprite.setPosition(x, y)
 
     //other backgrounds
     const farmBackground = this.add.image(0, 0, 'farm')
@@ -122,28 +135,6 @@ export default class cafeScene extends jitter {
     farmBackground.setScale(farmScaleX, farmScaleY)
     cafeBackground.setScale(CafeScaleX, CafeScaleY)
 
-    //jitter sprite
-    jitterSprite.setPosition(this.scale.width / 2, jitterSprite.width / 2)
-    jitterSprite.setDepth(1)
-    jitterSprite.setVisible(true)
-    jitterSprite.setName('Player')
-    const initialScale = 1 / 8
-    jitterSprite.setScale(initialScale, initialScale)
-
-    // Set the position of the jitter sprite
-    const x = this.scale.width / 2
-    const y = this.scale.height - jitterSprite.displayHeight / 2
-    jitterSprite.setPosition(x, y)
-    this.scale.on('resize', (gameSize) => {
-      // Update the scale of the jitter sprite based on the new game size
-      const newScale = (initialScale * gameHeight) / this.scale.height
-      jitterSprite.setScale(newScale, newScale)
-
-      // Update the position of the jitter sprite
-      const x = gameWidth / 2
-      const y = gameHeight - jitterSprite.displayHeight / 2
-      jitterSprite.setPosition(x, y)
-    })
     //player
     const dialogues = [
       'Hello there fine sir!',
@@ -213,16 +204,6 @@ export default class cafeScene extends jitter {
         cafe.setVisible(false)
       }
     })
-    jitterSprite.setInteractive()
-
-    this.tweens.add({
-      targets: jitterSprite,
-      x: gameWidth,
-      duration: 9000,
-      ease: 'linear',
-      repeat: -1, // -1: infinity,
-      yoyo: false,
-    })
 
     this.cursors = this.input.keyboard.createCursorKeys()
 
@@ -231,6 +212,28 @@ export default class cafeScene extends jitter {
       D: Phaser.Input.Keyboard.KeyCodes.D,
       W: Phaser.Input.Keyboard.KeyCodes.W,
       S: Phaser.Input.Keyboard.KeyCodes.S,
+    })
+    //ground
+    const ground = this.physics.add.staticGroup()
+    ground.create(400, 568, 'ground').setScale(2).refreshBody()
+
+    const door = this.add.sprite(0, 0, 'wonderlandDoor')
+    door.setOrigin(0, 1)
+    door.setScale(0.2)
+    door.setPosition(0, this.scale.height)
+    door.setInteractive()
+
+    door.on('pointerdown', () => {
+      // Check the distance between the jitterSprite and the door
+      const distance = Phaser.Math.Distance.Between(
+        this.jitterSprite.x,
+        this.jitterSprite.y,
+        door.x,
+        door.y
+      )
+      if (distance < 300) {
+        this.switchToLibraryScene()
+      }
     })
   }
 

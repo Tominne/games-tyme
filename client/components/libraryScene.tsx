@@ -90,7 +90,7 @@ export default class libraryScene extends Phaser.Scene {
     this.jitterSprite.setPosition(gameWidth / 2, gameHeight / 2)
     this.jitterSprite.setDepth(5)
     this.jitterSprite.setVisible(true)
-    this.jitterSprite.setName('Player')
+    this.jitterSprite.setName('jitterSprite')
     this.jitterSprite.setInteractive()
     const initialScale = 2 / 8
     this.jitterSprite.setScale(initialScale, initialScale)
@@ -104,7 +104,23 @@ export default class libraryScene extends Phaser.Scene {
 
     //table
     const tables = this.physics.add.staticGroup()
-    tables.create(400, 300, 'table')
+    tables.create(this.scale.width / 2, (this.scale.height * 4) / 5, 'table')
+
+    // Add colliders and overlaps for each table in the group
+    tables.getChildren().forEach((table) => {
+      this.physics.add.collider(this.jitterSprite, table, () => {
+        // Cast the body property to the ArcadeBody2D type
+        const jitterSpriteBody = this.jitterSprite
+          .body as Phaser.Physics.Arcade.Body
+        const tableBody = table.body as Phaser.Physics.Arcade.Body
+
+        // Access the touching property
+        if (jitterSpriteBody.touching.down && tableBody.touching.up) {
+          // The jitterSprite is landing on the table
+          jitterSpriteBody.setVelocityY(0)
+        }
+      })
+    })
 
     //video background library
 
@@ -122,9 +138,12 @@ export default class libraryScene extends Phaser.Scene {
 
     //cat
     this.Cat = this.physics.add.image(gameWidth, gameHeight, 'cat')
-    this.Cat.setOrigin(1, 1)
+    this.Cat.setOrigin(0.1, 1)
     this.Cat.setCollideWorldBounds(true)
     this.Cat.setScale(initialScale, initialScale)
+    this.input.keyboard.on('keydown-SPACE', () => {
+      this.Cat.play()
+    })
 
     //ground
     const ground = this.physics.add.staticGroup()
@@ -136,14 +155,14 @@ export default class libraryScene extends Phaser.Scene {
     door.setPosition(0, this.scale.height)
     door.setInteractive()
     door.on('pointerdown', () => {
-      // Check the distance between the player and the door
+      // Check the distance between the jitterSprite and the door
       const distance = Phaser.Math.Distance.Between(
         this.jitterSprite.x,
         this.jitterSprite.y,
         door.x,
         door.y
       )
-      if (distance < 100) {
+      if (distance < 300) {
         this.switchToCafeScene()
       }
     })
