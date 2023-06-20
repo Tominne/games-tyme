@@ -8,6 +8,8 @@ export default class libraryScene extends Phaser.Scene {
   private logo!: Phaser.Physics.Arcade.Sprite
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private cat?: Phaser.Physics.Arcade.Sprite
+  jitterSprite
+  Cat
 
   keys!: any
   video!: any
@@ -32,6 +34,7 @@ export default class libraryScene extends Phaser.Scene {
     this.load.image('jitter4', 'images/jitter/jitter4.png')
     this.load.image('jitter5', 'images/jitter/jitter5.png')
     this.load.image('jitter6', 'images/jitter/jitter6.png')
+    this.load.image('cat', 'images/cat.png')
   }
 
   create() {
@@ -102,7 +105,31 @@ export default class libraryScene extends Phaser.Scene {
     this.video.displayHeight = gameHeight
     this.video.displayWidth = gameWidth
     this.video.play()
+
+    //cat
+    this.Cat = this.physics.add.image(0, 0, 'cat')
+    this.Cat.setOrigin(0, 1)
+    this.Cat.setCollideWorldBounds(true)
+    this.Cat.setScale(initialScale, initialScale)
+
+    const door = this.add.sprite(0, 0, 'door')
+    door.setOrigin(0, 1)
+    door.setPosition(0, this.scale.height)
+    door.setInteractive()
+    door.on('pointerdown', () => {
+      // Check the distance between the player and the door
+      const distance = Phaser.Math.Distance.Between(
+        this.jitterSprite.x,
+        this.jitterSprite.y,
+        door.x,
+        door.y
+      )
+      if (distance < 100) {
+        this.switchToCafeScene()
+      }
+    })
   }
+
   update() {
     if (this.cursors.left.isDown) {
       this.jitterSprite.setVelocityX(-300)
