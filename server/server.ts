@@ -1,6 +1,5 @@
 import express from 'express'
 const app = express()
-import request from 'superagent'
 import dotenv from 'dotenv'
 dotenv.config()
 

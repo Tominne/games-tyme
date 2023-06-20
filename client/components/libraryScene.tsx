@@ -24,6 +24,8 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('wonderlandDoor', 'images/wonderlandDoor.png')
+    this.load.image('ground', 'images/grassFloor.png')
     this.load.video('library', 'images/library.mp4')
     this.load.image('frame1', 'images/dog/run1.png')
     this.load.image('frame2', 'images/dog/run1-5.png')
@@ -38,7 +40,6 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   create() {
-    //sizing
     const targetAspectRatio = 30 / 16
     const windowAspectRatio = window.innerWidth / window.innerHeight
     //canvas size
@@ -64,6 +65,8 @@ export default class libraryScene extends Phaser.Scene {
       gameHeight = gameWidth / targetAspectRatio
     }
     this.scale.setGameSize(gameWidth, gameHeight)
+    canvas.width = gameWidth
+    canvas.height = gameHeight
 
     //jitter sprite
     this.jitterSprite = this.physics.add.sprite(0, 0, 'jitter1')
@@ -99,21 +102,37 @@ export default class libraryScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys()
 
+    //table
+    const tables = this.physics.add.staticGroup()
+    tables.create(400, 300, 'table')
+
     //video background library
 
     this.video = this.add.video(gameWidth / 2, gameHeight / 2, 'library')
     this.video.displayHeight = gameHeight
     this.video.displayWidth = gameWidth
     this.video.play()
+    this.input.on('pointerdown', () => {
+      this.video.play()
+    })
+
+    this.input.keyboard.on('keydown-SPACE', () => {
+      this.video.play()
+    })
 
     //cat
-    this.Cat = this.physics.add.image(0, 0, 'cat')
-    this.Cat.setOrigin(0, 1)
+    this.Cat = this.physics.add.image(gameWidth, gameHeight, 'cat')
+    this.Cat.setOrigin(1, 1)
     this.Cat.setCollideWorldBounds(true)
     this.Cat.setScale(initialScale, initialScale)
 
-    const door = this.add.sprite(0, 0, 'door')
+    //ground
+    const ground = this.physics.add.staticGroup()
+    ground.create(400, 568, 'ground').setScale(2).refreshBody()
+
+    const door = this.add.sprite(0, 0, 'wonderlandDoor')
     door.setOrigin(0, 1)
+    door.setScale(0.2)
     door.setPosition(0, this.scale.height)
     door.setInteractive()
     door.on('pointerdown', () => {
@@ -131,6 +150,9 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   update() {
+    this.input.keyboard.on('keydown-UP', () => {
+      this.jitterSprite.setVelocityY(-5000)
+    })
     if (this.cursors.left.isDown) {
       this.jitterSprite.setVelocityX(-300)
     } else if (this.cursors.right.isDown) {
@@ -138,9 +160,7 @@ export default class libraryScene extends Phaser.Scene {
     } else {
       this.jitterSprite.setVelocityX(0)
     }
-    if (this.cursors.up.isDown) {
-      this.jitterSprite.setVelocityY(-300)
-    } else if (this.cursors.down.isDown) {
+    if (this.cursors.down.isDown) {
       this.jitterSprite.setVelocityY(300)
     } else {
       this.jitterSprite.setVelocityY(0)
