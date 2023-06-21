@@ -32,30 +32,40 @@ export default class cafeScene extends jitter {
   }
 
   create() {
-    const targetAspectRatio = 30 / 16
-    const windowAspectRatio = window.innerWidth / window.innerHeight
-    //add video to canvas
+    function calculateGameSize() {
+      const targetAspectRatio = 30 / 16
+      const windowAspectRatio = window.innerWidth / window.innerHeight
+      let gameWidth = window.innerWidth
+      let gameHeight = window.innerHeight
+
+      if (windowAspectRatio > targetAspectRatio) {
+        gameWidth = gameHeight * targetAspectRatio
+      } else {
+        gameHeight = gameWidth / targetAspectRatio
+      }
+      const maxWidth = 1600
+      if (gameWidth > maxWidth) {
+        gameWidth = maxWidth
+        gameHeight = gameWidth / targetAspectRatio
+      }
+
+      return { gameWidth, gameHeight }
+    }
+
+    //canvas size
     const canvas = this.sys.game.canvas
     canvas.style.position = 'absolute'
     canvas.style.left = '50%'
     canvas.style.top = '50%'
     canvas.style.transform = 'translate(-50%, -50%)'
 
-    let gameWidth = window.innerWidth
-    let gameHeight = window.innerHeight
+    canvas.style.zIndex = '2'
 
-    if (windowAspectRatio > targetAspectRatio) {
-      gameWidth = gameHeight * targetAspectRatio
-    } else {
-      gameHeight = gameWidth / targetAspectRatio
-    }
-    const maxWidth = 1000
-    if (gameWidth > maxWidth) {
-      gameWidth = maxWidth
-      gameHeight = gameWidth / targetAspectRatio
-    }
+    const { gameWidth, gameHeight } = calculateGameSize()
+
     this.scale.setGameSize(gameWidth, gameHeight)
-    this.physics.world.setBounds(0, 0, gameWidth, gameHeight)
+    canvas.width = gameWidth
+    canvas.height = gameHeight
 
     //jitter sprite
     this.jitterSprite = this.physics.add.sprite(0, 0, 'jitter1')
@@ -89,10 +99,6 @@ export default class cafeScene extends jitter {
     const y = this.scale.height - this.jitterSprite.displayHeight / 2
     this.jitterSprite.setPosition(x, y)
 
-    //other backgrounds
-    const farmBackground = this.add.image(0, 0, 'farm')
-    farmBackground.setOrigin(0, 0)
-
     const cafeBackground = this.add.image(0, 0, 'cafeGif')
     cafeBackground.setOrigin(0, 0)
     cafeBackground.setVisible(false)
@@ -122,16 +128,11 @@ export default class cafeScene extends jitter {
       return [scaleX, scaleY]
     }
 
-    const [farmScaleX, farmScaleY] = getScaleValues(
-      farmBackground,
-      this.cameras.main
-    )
-
     const [CafeScaleX, CafeScaleY] = getScaleValues(
       cafeBackground,
       this.cameras.main
     )
-    farmBackground.setScale(farmScaleX, farmScaleY)
+
     cafeBackground.setScale(CafeScaleX, CafeScaleY)
 
     //player
@@ -186,21 +187,14 @@ export default class cafeScene extends jitter {
     this.cursors = this.input.keyboard.createCursorKeys()
 
     this.input.keyboard.on('keydown-D', () => {
-      if (farmBackground.visible) {
-        farmBackground.setVisible(false)
-        cafeBackground.setVisible(false)
-        mySprite.setVisible(false)
-        cafe.setVisible(true)
-      } else if (cafeBackground.visible) {
-        farmBackground.setVisible(true)
-        cafeBackground.setVisible(false)
+      if (cafeBackground.visible) {
+        cafeBackground.setVisible(true)
         mySprite.setVisible(false)
         cafe.setVisible(false)
       } else {
-        farmBackground.setVisible(false)
-        cafeBackground.setVisible(true)
+        cafeBackground.setVisible(false)
         mySprite.setVisible(true)
-        cafe.setVisible(false)
+        cafe.setVisible(true)
       }
     })
 

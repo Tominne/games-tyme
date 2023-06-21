@@ -21,6 +21,17 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   async preload() {
+    function jsonp(url, callback) {
+      const script = document.createElement('script')
+      script.src = url + '?callback=' + callback.name
+      document.body.appendChild(script)
+    }
+
+    function handleData(data) {
+      // handle data here
+      console.log(data)
+    }
+
     const locationInput = document.createElement('input')
     document.body.appendChild(locationInput)
 
@@ -28,17 +39,10 @@ export default class libraryScene extends Phaser.Scene {
     submitButton.textContent = 'Get Location Weather'
     document.body.appendChild(submitButton)
 
-    submitButton.addEventListener('click', async () => {
+    submitButton.addEventListener('click', () => {
       const location = locationInput.value
       const url = `http://localhost:3002/api/weather/${location}`
-      const response = await fetch(url)
-      const text = await response.text()
-      console.log(text)
-      /* const data = await response.json()
-      if (data !== undefined) {
-        const conditions = data.current
-        console.log(conditions)
-      }*/
+      jsonp(url, handleData)
     })
 
     this.load.image('wonderlandDoor', 'images/wonderlandDoor.png')
@@ -57,8 +61,34 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   create() {
-    const targetAspectRatio = 30 / 16
-    const windowAspectRatio = window.innerWidth / window.innerHeight
+    function getScaleValues(
+      backgroundImage: Phaser.GameObjects.Image,
+      camera: Phaser.Cameras.Scene2D.Camera
+    ) {
+      const scaleX = camera.width / backgroundImage.width
+      const scaleY = camera.height / backgroundImage.height
+      return [scaleX, scaleY]
+    }
+    function calculateGameSize() {
+      const targetAspectRatio = 30 / 16
+      const windowAspectRatio = window.innerWidth / window.innerHeight
+      let gameWidth = window.innerWidth
+      let gameHeight = window.innerHeight
+
+      if (windowAspectRatio > targetAspectRatio) {
+        gameWidth = gameHeight * targetAspectRatio
+      } else {
+        gameHeight = gameWidth / targetAspectRatio
+      }
+      const maxWidth = 1600
+      if (gameWidth > maxWidth) {
+        gameWidth = maxWidth
+        gameHeight = gameWidth / targetAspectRatio
+      }
+
+      return { gameWidth, gameHeight }
+    }
+
     //canvas size
     const canvas = this.sys.game.canvas
     canvas.style.position = 'absolute'
@@ -68,25 +98,28 @@ export default class libraryScene extends Phaser.Scene {
 
     canvas.style.zIndex = '2'
 
-    let gameWidth = window.innerWidth
-    let gameHeight = window.innerHeight
+    const { gameWidth, gameHeight } = calculateGameSize()
 
-    if (windowAspectRatio > targetAspectRatio) {
-      gameWidth = gameHeight * targetAspectRatio
-    } else {
-      gameHeight = gameWidth / targetAspectRatio
-    }
-    const maxWidth = 1600
-    if (gameWidth > maxWidth) {
-      gameWidth = maxWidth
-      gameHeight = gameWidth / targetAspectRatio
-    }
-    this.scale.setGameSize(gameWidth, gameHeight)
-    canvas.width = gameWidth
-    canvas.height = gameHeight
+    //video background library
+    this.video = this.add.video(gameWidth / 2, gameHeight / 2, 'library')
+    const [scaleX, scaleY] = getScaleValues(this.video, this.cameras.main)
+    this.video.setScale(scaleX, scaleY)
+    this.video.play()
+    this.input.on('pointerdown', () => {
+      this.video.play()
+    })
+
+    this.input.keyboard.on('keydown-SPACE', () => {
+      this.video.play()
+    })
+
+    // update the size of the video whenever the size of the canvas changes
 
     //jitter sprite
-    this.jitterSprite = this.physics.add.sprite(0, 0, 'jitter1')
+    const x = this.scale.width / 2
+    const y = this.scale.height / 2
+
+    this.jitterSprite = this.physics.add.sprite(x, y, 'jitter1')
     this.jitterSprite.setVelocity(0)
     this.jitterSprite.setBounce(0, 0)
     this.jitterSprite.setCollideWorldBounds(true)
@@ -109,13 +142,10 @@ export default class libraryScene extends Phaser.Scene {
     this.jitterSprite.setVisible(true)
     this.jitterSprite.setName('jitterSprite')
     this.jitterSprite.setInteractive()
-    const initialScale = 2 / 8
+    const initialScale = 1.5 / 8
     this.jitterSprite.setScale(initialScale, initialScale)
 
     // Set the position of the jitter sprite
-    const x = this.scale.width / 2
-    const y = this.scale.height - this.jitterSprite.displayHeight / 2
-    this.jitterSprite.setPosition(x, y)
 
     this.cursors = this.input.keyboard.createCursorKeys()
 
@@ -139,20 +169,6 @@ export default class libraryScene extends Phaser.Scene {
       })
     })
 
-    //video background library
-
-    this.video = this.add.video(gameWidth / 2, gameHeight / 2, 'library')
-    this.video.displayHeight = gameHeight
-    this.video.displayWidth = gameWidth
-    this.video.play()
-    this.input.on('pointerdown', () => {
-      this.video.play()
-    })
-
-    this.input.keyboard.on('keydown-SPACE', () => {
-      this.video.play()
-    })
-
     //cat
     this.Cat = this.physics.add.image(gameWidth, gameHeight, 'cat')
     this.Cat.setOrigin(0.1, 1)
@@ -161,10 +177,6 @@ export default class libraryScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-SPACE', () => {
       this.Cat.play()
     })
-
-    //ground
-    const ground = this.physics.add.staticGroup()
-    ground.create(400, 568, 'ground').setScale(2).refreshBody()
 
     const door = this.add.sprite(0, 0, 'wonderlandDoor')
     door.setOrigin(0, 1)
