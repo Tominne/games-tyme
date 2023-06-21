@@ -1,12 +1,16 @@
 import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
+import { LoadingScene } from './loading'
+import { Scene } from 'phaser'
+import { Player } from './player'
 
-export default class libraryScene extends Phaser.Scene {
+export default class libraryScene extends Scene {
   private platforms?: Phaser.Physics.Arcade.StaticBody
   private logo!: Phaser.Physics.Arcade.Sprite
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private cat?: Phaser.Physics.Arcade.Sprite
-  jitterSprite
-  Cat
+  jitterSprite: any
+  player!: Player
+  Cat: any
 
   keys!: any
   video!: any
@@ -21,13 +25,13 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   async preload() {
-    function jsonp(url, callback) {
+    function jsonp(url: string, callback: any) {
       const script = document.createElement('script')
       script.src = url + '?callback=' + callback.name
       document.body.appendChild(script)
     }
 
-    function handleData(data) {
+    function handleData(data: any) {
       // handle data here
       console.log(data)
     }
@@ -61,6 +65,24 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   create() {
+    this.player = new Player(this, 100, 100)
+    const borderTop = this.physics.add.staticGroup()
+    borderTop.create(0, 0).setDisplaySize(this.game.config.width as number, 1)
+
+    const borderBottom = this.physics.add.staticGroup()
+    borderBottom
+      .create(0, this.game.config.height as number)
+      .setDisplaySize(this.game.config.width as number, 1)
+    // Create left border
+    const borderLeft = this.physics.add.staticGroup()
+    borderLeft.create(0, 0).setDisplaySize(1, this.game.config.height as number)
+
+    // Create right border
+    const borderRight = this.physics.add.staticGroup()
+    borderRight
+      .create(this.game.config.width as number, 0)
+      .setDisplaySize(1, this.game.config.height as number)
+
     function getScaleValues(
       backgroundImage: Phaser.GameObjects.Image,
       camera: Phaser.Cameras.Scene2D.Camera
@@ -97,8 +119,10 @@ export default class libraryScene extends Phaser.Scene {
     canvas.style.transform = 'translate(-50%, -50%)'
 
     canvas.style.zIndex = '2'
-
     const { gameWidth, gameHeight } = calculateGameSize()
+    this.scale.setGameSize(gameWidth, gameHeight)
+    canvas.width = gameWidth
+    canvas.height = gameHeight
 
     //video background library
     this.video = this.add.video(gameWidth / 2, gameHeight / 2, 'library')
@@ -198,6 +222,7 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   update() {
+    this.player.update()
     this.input.keyboard.on('keydown-UP', () => {
       this.jitterSprite.setVelocityY(-5000)
     })

@@ -1,20 +1,23 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
-    "strict": true,
+    "jsx": "react",
     "sourceMap": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "strict": true,
     "noImplicitReturns": true,
-    "skipLibCheck": true
+    "module": "es6",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "target": "es5",
+    "allowJs": true,
+    "baseUrl": ".",
   },
-  "include": ["server"]
+  "include": [
+    "./index.d.ts",
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "./dist/"
+  ]
 }
