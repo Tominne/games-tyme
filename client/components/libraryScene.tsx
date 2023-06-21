@@ -1,7 +1,4 @@
 import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
-import { useQuery } from 'react-query'
-import { getWeather } from '../api'
-import jitter from './jitter'
 
 export default class libraryScene extends Phaser.Scene {
   private platforms?: Phaser.Physics.Arcade.StaticBody
@@ -23,7 +20,27 @@ export default class libraryScene extends Phaser.Scene {
     super({ key: 'libraryScene' })
   }
 
-  preload() {
+  async preload() {
+    const locationInput = document.createElement('input')
+    document.body.appendChild(locationInput)
+
+    const submitButton = document.createElement('button')
+    submitButton.textContent = 'Get Location Weather'
+    document.body.appendChild(submitButton)
+
+    submitButton.addEventListener('click', async () => {
+      const location = locationInput.value
+      const url = `http://localhost:3001/api/weather/${location}, { mode: 'no-cors' }`
+      const response = await fetch(url)
+      const text = await response.text()
+      console.log(text)
+      /* const data = await response.json()
+      if (data !== undefined) {
+        const conditions = data.current
+        console.log(conditions)
+      }*/
+    })
+
     this.load.image('wonderlandDoor', 'images/wonderlandDoor.png')
     this.load.image('ground', 'images/grassFloor.png')
     this.load.video('library', 'images/library.mp4')

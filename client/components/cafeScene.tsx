@@ -1,6 +1,6 @@
 import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
 import { useQuery } from 'react-query'
-import { getWeather } from '../api'
+
 import jitter from './jitter'
 import { config } from 'dotenv'
 import main from '../main'
@@ -15,7 +15,6 @@ export default class cafeScene extends jitter {
     this.scene.start('libraryScene')
   }
   preload() {
-    getWeather()
     this.load.image('farm', 'images/farm.png')
     this.load.image('cafeGif', 'images/cafe.gif')
     this.load.image('cafe1', 'images/devcafe/cafe1.png')

@@ -1,6 +1,6 @@
 import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
 import { useQuery } from 'react-query'
-import { getWeather } from '../api'
+
 import jitter from './jitter'
 
 export default class libraryScene extends Phaser.Scene {
