@@ -30,7 +30,7 @@ export default class libraryScene extends Phaser.Scene {
 
     submitButton.addEventListener('click', async () => {
       const location = locationInput.value
-      const url = `http://localhost:3001/api/weather/${location}, { mode: 'no-cors' }`
+      const url = `http://localhost:3002/api/weather/${location}`
       const response = await fetch(url)
       const text = await response.text()
       console.log(text)
