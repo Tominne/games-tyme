@@ -2,6 +2,8 @@ import express from 'express'
 const app = express()
 import dotenv from 'dotenv'
 import fetch from 'node-fetch'
+import { configDotenv } from 'dotenv'
+import { process } from 'dotenv'
 dotenv.config()
 
 app.get('/api/weather/:location', async (req, res) => {

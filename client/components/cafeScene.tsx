@@ -96,6 +96,24 @@ export default class cafeScene extends jitter {
       frameRate: 0.2,
       repeat: -1,
     })
+    // create a particle emitter
+    const particles = this.add.particles('particleTexture')
+
+    const emitter = particles.createEmitter({
+      speed: 200,
+      scale: { start: 1, end: 0 },
+      blendMode: 'ADD',
+    })
+
+    this.jitterSprite.on('keydown-SPACE', () => {
+      emitter.setPosition(this.jitterSprite.x, this.jitterSprite.y)
+      emitter.start()
+
+      // stop emitting particles after 3 seconds
+      this.time.delayedCall(3000, () => {
+        emitter.stop()
+      })
+    })
 
     //cafe sprite
     const cafe = this.add.sprite(0, 0, 'cafe1')

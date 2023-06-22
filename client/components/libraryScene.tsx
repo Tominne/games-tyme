@@ -8,6 +8,7 @@ export default class libraryScene extends Phaser.Scene {
   private cat?: Phaser.Physics.Arcade.Sprite
   jitterSprite
   Cat
+  emitter
 
   keys!: any
   video!: any
@@ -45,7 +46,7 @@ export default class libraryScene extends Phaser.Scene {
       const url = `http://localhost:3002/api/weather/${location}`
       jsonp(url, handleData)
     })
-
+    this.load.image('bees', 'images/bees.png')
     this.load.image('wonderlandDoor', 'images/wonderlandDoor.png')
     this.load.image('ground', 'images/grassFloor.png')
     this.load.video('library', 'images/library.mp4')
@@ -59,7 +60,9 @@ export default class libraryScene extends Phaser.Scene {
     this.load.image('jitter5', 'images/jitter/jitter5.png')
     this.load.image('jitter6', 'images/jitter/jitter6.png')
     this.load.image('cat', 'images/cat.png')
+    //sounds
     this.load.audio('cafeSound', 'sounds/cafeSounds.mp3')
+    this.load.audio('beeSounds', 'sounds/bee-buzzing-sound.mp3')
   }
 
   async create() {
@@ -74,10 +77,8 @@ export default class libraryScene extends Phaser.Scene {
       return [scaleX, scaleY]
     }
     function calculateGameSize() {
-      const targetAspectRatio = 30 / 16
-      const windowAspectRatio = window.innerWidth / window.innerHeight
-      let gameWidth = window.innerWidth
-      let gameHeight = window.innerHeight
+      const gameWidth = window.innerWidth
+      const gameHeight = window.innerHeight
 
       return { gameWidth, gameHeight }
     }
@@ -140,6 +141,7 @@ export default class libraryScene extends Phaser.Scene {
       (this.scale.height * 4) / 5,
       'table'
     )
+    table.setScale(1.2, 1)
     table.setVisible(false)
     // Add colliders and overlaps for each table in the group
     tables.getChildren().forEach((table) => {
@@ -157,6 +159,42 @@ export default class libraryScene extends Phaser.Scene {
       })
     })
 
+    //sounds
+    let particleSounds = true
+
+    this.emitter = this.add.particles('bees').createEmitter({
+      speed: 150,
+      quantity: 0.0001,
+      scale: { start: 1, end: 0 },
+    })
+    this.emitter.stop()
+    const beeSound = this.sound.add('beeSounds')
+
+    // emit particles around the player when they jump
+    this.input.keyboard.on('keydown-SPACE', () => {
+      this.emitter.setPosition(this.jitterSprite.x, this.jitterSprite.y)
+      this.emitter.start()
+      if (particleSounds) {
+        beeSound.play()
+      }
+      // stop emitting particles after 3 seconds
+      this.time.delayedCall(3000, () => {
+        this.emitter.stop()
+        beeSound.stop()
+      })
+    })
+    //sounds switch
+
+    const soundSwitch = this.add.text(10, 10, 'Particle Sounds: ON', {
+      color: '#ffffff',
+      stroke: '#ff0000',
+      strokeThickness: 2,
+    })
+    soundSwitch.setInteractive()
+    soundSwitch.on('pointerdown', () => {
+      particleSounds = !particleSounds
+      soundSwitch.text = `Particle Sounds: ${particleSounds ? 'ON' : 'OFF'}`
+    })
     //cat
     this.Cat = this.physics.add.image(gameWidth / 2.1, gameHeight / 1.3, 'cat')
     this.Cat.setOrigin(0.1, 1)
@@ -199,17 +237,14 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   update() {
-    this.input.keyboard.on('keydown-UP', () => {
-      this.jitterSprite.setVelocityY(-5000)
-    })
+    this.jitterSprite.setVelocity(0)
     if (this.cursors.left.isDown) {
       this.jitterSprite.setVelocityX(-300)
     } else if (this.cursors.right.isDown) {
       this.jitterSprite.setVelocityX(300)
-    } else {
-      this.jitterSprite.setVelocityX(0)
-    }
-    if (this.cursors.down.isDown) {
+    } else if (this.cursors.up.isDown) {
+      this.jitterSprite.setVelocityY(-300)
+    } else if (this.cursors.down.isDown) {
       this.jitterSprite.setVelocityY(300)
     } else {
       this.jitterSprite.setVelocityY(0)
