@@ -31,7 +31,7 @@ export default class cafeScene extends jitter {
     this.load.image('jitter6', 'images/jitter/jitter6.png')
   }
 
-  create() {
+  async create() {
     function calculateGameSize() {
       const targetAspectRatio = 30 / 16
       const windowAspectRatio = window.innerWidth / window.innerHeight
@@ -52,20 +52,7 @@ export default class cafeScene extends jitter {
       return { gameWidth, gameHeight }
     }
 
-    //canvas size
-    const canvas = this.sys.game.canvas
-    canvas.style.position = 'absolute'
-    canvas.style.left = '50%'
-    canvas.style.top = '50%'
-    canvas.style.transform = 'translate(-50%, -50%)'
-
-    canvas.style.zIndex = '2'
-
     const { gameWidth, gameHeight } = calculateGameSize()
-
-    this.scale.setGameSize(gameWidth, gameHeight)
-    canvas.width = gameWidth
-    canvas.height = gameHeight
 
     //jitter sprite
     this.jitterSprite = this.physics.add.sprite(0, 0, 'jitter1')
@@ -85,7 +72,7 @@ export default class cafeScene extends jitter {
       frameRate: 2,
       repeat: -1,
     })
-    this.jitterSprite.play('jitterAnimation')
+    await this.jitterSprite.play('jitterAnimation')
     this.jitterSprite.setPosition(gameWidth / 2, gameHeight / 2)
     this.jitterSprite.setDepth(5)
     this.jitterSprite.setVisible(true)

@@ -1,3 +1,4 @@
+import { table } from '@webassemblyjs/ast/lib/nodes'
 import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
 
 export default class libraryScene extends Phaser.Scene {
@@ -58,9 +59,12 @@ export default class libraryScene extends Phaser.Scene {
     this.load.image('jitter5', 'images/jitter/jitter5.png')
     this.load.image('jitter6', 'images/jitter/jitter6.png')
     this.load.image('cat', 'images/cat.png')
+    this.load.audio('cafeSound', 'sounds/cafeSounds.mp3')
   }
 
-  create() {
+  async create() {
+    const cafeSound = this.sound.add('cafeSound')
+    cafeSound.play()
     function getScaleValues(
       backgroundImage: Phaser.GameObjects.Image,
       camera: Phaser.Cameras.Scene2D.Camera
@@ -75,28 +79,8 @@ export default class libraryScene extends Phaser.Scene {
       let gameWidth = window.innerWidth
       let gameHeight = window.innerHeight
 
-      if (windowAspectRatio > targetAspectRatio) {
-        gameWidth = gameHeight * targetAspectRatio
-      } else {
-        gameHeight = gameWidth / targetAspectRatio
-      }
-      const maxWidth = 1600
-      if (gameWidth > maxWidth) {
-        gameWidth = maxWidth
-        gameHeight = gameWidth / targetAspectRatio
-      }
-
       return { gameWidth, gameHeight }
     }
-
-    //canvas size
-    const canvas = this.sys.game.canvas
-    canvas.style.position = 'absolute'
-    canvas.style.left = '50%'
-    canvas.style.top = '50%'
-    canvas.style.transform = 'translate(-50%, -50%)'
-
-    canvas.style.zIndex = '2'
 
     const { gameWidth, gameHeight } = calculateGameSize()
 
@@ -136,7 +120,7 @@ export default class libraryScene extends Phaser.Scene {
       frameRate: 2,
       repeat: -1,
     })
-    this.jitterSprite.play('jitterAnimation')
+    await this.jitterSprite.play('jitterAnimation')
     this.jitterSprite.setPosition(gameWidth / 2, gameHeight / 2)
     this.jitterSprite.setDepth(5)
     this.jitterSprite.setVisible(true)
@@ -151,8 +135,12 @@ export default class libraryScene extends Phaser.Scene {
 
     //table
     const tables = this.physics.add.staticGroup()
-    tables.create(this.scale.width / 2, (this.scale.height * 4) / 5, 'table')
-
+    const table = tables.create(
+      this.scale.width / 2,
+      (this.scale.height * 4) / 5,
+      'table'
+    )
+    table.setVisible(false)
     // Add colliders and overlaps for each table in the group
     tables.getChildren().forEach((table) => {
       this.physics.add.collider(this.jitterSprite, table, () => {
@@ -170,19 +158,32 @@ export default class libraryScene extends Phaser.Scene {
     })
 
     //cat
-    this.Cat = this.physics.add.image(gameWidth, gameHeight, 'cat')
+    this.Cat = this.physics.add.image(gameWidth / 2.1, gameHeight / 1.3, 'cat')
     this.Cat.setOrigin(0.1, 1)
     this.Cat.setCollideWorldBounds(true)
-    this.Cat.setScale(initialScale, initialScale)
+    this.Cat.setScale(initialScale + 0.13, initialScale + 0.13)
     this.input.keyboard.on('keydown-SPACE', () => {
       this.Cat.play()
     })
+    this.physics.add.collider(this.Cat, table)
 
     const door = this.add.sprite(0, 0, 'wonderlandDoor')
     door.setOrigin(0, 1)
     door.setScale(0.2)
     door.setPosition(0, this.scale.height)
     door.setInteractive()
+    this.input.keyboard.on('keydown-C', () => {
+      // Check the distance between the jitterSprite and the door
+      const distance = Phaser.Math.Distance.Between(
+        this.jitterSprite.x,
+        this.jitterSprite.y,
+        door.x,
+        door.y
+      )
+      if (distance < 300) {
+        this.switchToCafeScene()
+      }
+    })
     door.on('pointerdown', () => {
       // Check the distance between the jitterSprite and the door
       const distance = Phaser.Math.Distance.Between(
