@@ -1,20 +1,36 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM"],
-    "moduleResolution": "Node",
-    "strict": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "skipLibCheck": true
+  "ts-node": {
+    "transpileOnly": true,
+    // Tell ts-node CLI to install the --loader automatically
+    "esm": true
   },
-  "include": ["server"]
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    /* Projects */
+    /* Language and Environment */
+    "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "jsx": "react-jsx" /* Specify what JSX code is generated. */,
+
+    /* Modules */
+    "module": "ESNext" /* Specify what module code is generated. */,
+    "moduleResolution": "node",
+
+    /* Interop Constraints */
+    "esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+    "allowJs": true,
+
+    /* Type Checking */
+    "strict": true /* Enable all strict
+    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */,
+    "noEmit": true,
+    // add an alias for the client folder
+    "paths": {
+      "@/*": ["./client/*"],
+      "@models/*": ["./models/*"]
+    },
+    "baseUrl": ".",
+    "types": ["vite/client"]
+  },
+  "include": ["./server/**/*", "./client/**/*", "./models/**/*"]
 }

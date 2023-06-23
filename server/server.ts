@@ -3,7 +3,8 @@ const app = express()
 import dotenv from 'dotenv'
 import fetch from 'node-fetch'
 import { configDotenv } from 'dotenv'
-import { process } from 'dotenv'
+import 'dotenv/config'
+//import { process } from 'dotenv'
 dotenv.config()
 
 app.get('/api/weather/:location', async (req, res) => {
@@ -28,3 +29,5 @@ app.get('/api/weather/:location', async (req, res) => {
 app.listen(3002, () => {
   console.log('Server listening on port 3002')
 })
+
+export default app
