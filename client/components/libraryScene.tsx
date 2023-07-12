@@ -1,4 +1,3 @@
-import { table } from '@webassemblyjs/ast/lib/nodes'
 import Phaser, { Cameras, DOWN, LEFT, RIGHT } from 'phaser'
 
 export default class libraryScene extends Phaser.Scene {
@@ -6,9 +5,9 @@ export default class libraryScene extends Phaser.Scene {
   private logo!: Phaser.Physics.Arcade.Sprite
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private cat?: Phaser.Physics.Arcade.Sprite
-  jitterSprite
-  Cat
-  emitter
+  jitterSprite: any
+  Cat: any
+  emitter: any
 
   keys!: any
   video!: any
@@ -23,13 +22,13 @@ export default class libraryScene extends Phaser.Scene {
   }
 
   async preload() {
-    function jsonp(url, callback) {
+    function jsonp(url: string, callback: any) {
       const script = document.createElement('script')
       script.src = url + '?callback=' + callback.name
       document.body.appendChild(script)
     }
 
-    function handleData(data) {
+    function handleData(data: any) {
       // handle data here
       console.log(data)
     }
@@ -88,15 +87,18 @@ export default class libraryScene extends Phaser.Scene {
     //video background library
     this.video = this.add.video(gameWidth / 2, gameHeight / 2, 'library')
     const [scaleX, scaleY] = getScaleValues(this.video, this.cameras.main)
-    this.video.setScale(scaleX, scaleY)
+    this.video.setScale(scaleX * 0.5, scaleY * 0.5)
+
     this.video.play()
     this.input.on('pointerdown', () => {
       this.video.play()
     })
 
-    this.input.keyboard.on('keydown-SPACE', () => {
-      this.video.play()
-    })
+    if (this.input.keyboard !== null) {
+      this.input.keyboard.on('keydown-SPACE', () => {
+        this.video.play()
+      })
+    }
 
     // update the size of the video whenever the size of the canvas changes
 
@@ -132,7 +134,9 @@ export default class libraryScene extends Phaser.Scene {
 
     // Set the position of the jitter sprite
 
-    this.cursors = this.input.keyboard.createCursorKeys()
+    if (this.input.keyboard !== null) {
+      this.cursors = this.input.keyboard.createCursorKeys()
+    }
 
     //table
     const tables = this.physics.add.staticGroup()
@@ -162,27 +166,30 @@ export default class libraryScene extends Phaser.Scene {
     //sounds
     let particleSounds = true
 
-    this.emitter = this.add.particles('bees').createEmitter({
+    this.emitter = this.add.particles(100, 100, 'bees', {
       speed: 150,
-      quantity: 0.0001,
+      quantity: 10,
       scale: { start: 1, end: 0 },
     })
+
     this.emitter.stop()
     const beeSound = this.sound.add('beeSounds')
 
     // emit particles around the player when they jump
-    this.input.keyboard.on('keydown-SPACE', () => {
-      this.emitter.setPosition(this.jitterSprite.x, this.jitterSprite.y)
-      this.emitter.start()
-      if (particleSounds) {
-        beeSound.play()
-      }
-      // stop emitting particles after 3 seconds
-      this.time.delayedCall(3000, () => {
-        this.emitter.stop()
-        beeSound.stop()
+    if (this.input.keyboard !== null) {
+      this.input.keyboard.on('keydown-SPACE', () => {
+        this.emitter.setPosition(this.jitterSprite.x, this.jitterSprite.y)
+        this.emitter.start()
+        if (particleSounds) {
+          beeSound.play()
+        }
+        // stop emitting particles after 3 seconds
+        this.time.delayedCall(3000, () => {
+          this.emitter.stop()
+          beeSound.stop()
+        })
       })
-    })
+    }
     //sounds switch
 
     const soundSwitch = this.add.text(10, 10, 'Particle Sounds: ON', {
@@ -200,9 +207,11 @@ export default class libraryScene extends Phaser.Scene {
     this.Cat.setOrigin(0.1, 1)
     this.Cat.setCollideWorldBounds(true)
     this.Cat.setScale(initialScale + 0.13, initialScale + 0.13)
-    this.input.keyboard.on('keydown-SPACE', () => {
-      this.Cat.play()
-    })
+    if (this.input.keyboard !== null) {
+      this.input.keyboard.on('keydown-SPACE', () => {
+        this.Cat.play()
+      })
+    }
     this.physics.add.collider(this.Cat, table)
 
     const door = this.add.sprite(0, 0, 'wonderlandDoor')
@@ -210,18 +219,20 @@ export default class libraryScene extends Phaser.Scene {
     door.setScale(0.2)
     door.setPosition(0, this.scale.height)
     door.setInteractive()
-    this.input.keyboard.on('keydown-C', () => {
-      // Check the distance between the jitterSprite and the door
-      const distance = Phaser.Math.Distance.Between(
-        this.jitterSprite.x,
-        this.jitterSprite.y,
-        door.x,
-        door.y
-      )
-      if (distance < 300) {
-        this.switchToCafeScene()
-      }
-    })
+    if (this.input.keyboard !== null) {
+      this.input.keyboard.on('keydown-C', () => {
+        // Check the distance between the jitterSprite and the door
+        const distance = Phaser.Math.Distance.Between(
+          this.jitterSprite.x,
+          this.jitterSprite.y,
+          door.x,
+          door.y
+        )
+        if (distance < 300) {
+          this.switchToCafeScene()
+        }
+      })
+    }
     door.on('pointerdown', () => {
       // Check the distance between the jitterSprite and the door
       const distance = Phaser.Math.Distance.Between(
