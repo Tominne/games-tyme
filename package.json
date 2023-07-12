@@ -2,7 +2,6 @@
 	"name": "phaser3-typescript-vite-template",
 	"private": true,
 	"version": "0.0.0",
-	"type": "module",
 	"scripts": {
 		"start": "concurrently \"ts-node /home/tominne/games-tyme/server/index.ts\" \"vite\"",
 		"dev": "run-p dev:client dev:server",
